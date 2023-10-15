@@ -23,7 +23,7 @@ async function fetchCoinData(
 async function updateDatabase(amountOfDigits: any) {
   const URL = process.env.API_URL || "http://localhost:3000/api/digits/";
   for (const digit of amountOfDigits) {
-    await axios.post(`${URL}${digit.digit}`, {
+    await axios.post(`${URL}/${digit.digit}`, {
       amount: digit.amount,
     });
   }
