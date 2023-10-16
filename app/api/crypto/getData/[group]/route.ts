@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { symbolsGroupsList } from "@/app/constants/symbols";
+import {
+  symbolsGroupsList,
+  symbolsGroupsList2,
+  symbolsGroupsList3,
+  symbolsGroupsList4,
+} from "@/app/constants/symbols";
 import { SymbolsResponse, GetCoinsDataResponse } from "@/app/types";
 import axios from "axios";
 import { getFirstDigit } from "@/app/helpers";
 
 export const revalidate = 0;
-export const maxDuration = 150;
 
 async function fetchCoinData(
   symbolList: string[]
@@ -29,21 +33,34 @@ async function updateDatabase(amountOfDigits: any) {
       await axios.post(`${URL}/${digit.digit}`, {
         amount: digit.amount,
       });
-    }, 500);
+    }, 100);
   }
 }
 
-export async function GET() {
+export async function GET({ params }: { params: { group: number } }) {
   try {
     const amountOfDigits = Array.from({ length: 9 }, (_, i) => ({
       digit: i + 1,
       amount: 0,
     }));
 
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
+    if (params.group <= 0 || params.group > 4) {
+      return NextResponse.json(
+        { message: "Invalid group number. 1-4" },
+        { status: 400 }
+      );
+    }
 
-    const coinDataPromises = symbolsGroupsList.map(
+    const symbolsGroupsListArray = [
+      symbolsGroupsList,
+      symbolsGroupsList2,
+      symbolsGroupsList3,
+      symbolsGroupsList4,
+    ];
+
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    const coinDataPromises = symbolsGroupsListArray[params.group].map(
       async (symbolList, index) => {
         return new Promise<void>(async (resolve, reject) => {
           try {
@@ -67,7 +84,7 @@ export async function GET() {
             reject(error);
           }
         }).then(async () => {
-          await delay(500);
+          await delay(20 * index);
         });
       }
     );

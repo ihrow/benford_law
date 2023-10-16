@@ -989,6 +989,9 @@ export const symbolsGroupsList = [
     "YEC",
     "TOKO",
   ],
+];
+
+export const symbolsGroupsList2 = [
   [
     "GRN",
     "TEMCO",
@@ -1952,6 +1955,9 @@ export const symbolsGroupsList = [
     "OUSD",
     "HYVE",
   ],
+];
+
+export const symbolsGroupsList3 = [
   [
     "XCAD",
     "SPELL",
@@ -2858,6 +2864,9 @@ export const symbolsGroupsList = [
     "CREO",
     "STRM",
   ],
+];
+
+export const symbolsGroupsList4 = [
   [
     "BONTE",
     "GAL",
