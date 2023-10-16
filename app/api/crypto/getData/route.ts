@@ -1,9 +1,11 @@
-import prisma from "lib/prisma";
 import { NextResponse } from "next/server";
 import { symbolsGroupsList } from "@/app/constants/symbols";
 import { SymbolsResponse, GetCoinsDataResponse } from "@/app/types";
 import axios from "axios";
 import { getFirstDigit } from "@/app/helpers";
+
+export const revalidate = 0;
+export const maxDuration = 150;
 
 async function fetchCoinData(
   symbolList: string[]
@@ -21,11 +23,13 @@ async function fetchCoinData(
 }
 
 async function updateDatabase(amountOfDigits: any) {
-  const URL = process.env.API_URL || "http://localhost:3000/api/digits/";
+  const URL = process.env.API_URL_DIGITS || "http://localhost:3000/api/digits";
   for (const digit of amountOfDigits) {
-    await axios.post(`${URL}/${digit.digit}`, {
-      amount: digit.amount,
-    });
+    setTimeout(async () => {
+      await axios.post(`${URL}/${digit.digit}`, {
+        amount: digit.amount,
+      });
+    }, 500);
   }
 }
 
@@ -35,6 +39,9 @@ export async function GET() {
       digit: i + 1,
       amount: 0,
     }));
+
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
 
     const coinDataPromises = symbolsGroupsList.map(
       async (symbolList, index) => {
@@ -59,6 +66,8 @@ export async function GET() {
           } catch (error) {
             reject(error);
           }
+        }).then(async () => {
+          await delay(500);
         });
       }
     );
@@ -67,20 +76,16 @@ export async function GET() {
 
     await updateDatabase(amountOfDigits);
 
-    const digits = await prisma.digit.findMany({
-      orderBy: { digit: "asc" },
-    });
-
     const response: GetCoinsDataResponse = {
-      digits: digits.map((digit) => ({
+      digits: amountOfDigits.map((digit) => ({
         digit: digit.digit,
         amount: digit.amount,
       })),
-      total: digits.reduce((acc, digit) => acc + digit.amount, 0),
+      total: amountOfDigits.reduce((acc, digit) => acc + digit.amount, 0),
     };
 
     return NextResponse.json(response);
   } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ message: error });
   }
 }
