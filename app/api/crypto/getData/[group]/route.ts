@@ -37,7 +37,10 @@ async function updateDatabase(amountOfDigits: any) {
   }
 }
 
-export async function GET({ params }: { params: { group: number } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: { group: number } }
+) {
   try {
     const amountOfDigits = Array.from({ length: 9 }, (_, i) => ({
       digit: i + 1,
@@ -60,7 +63,7 @@ export async function GET({ params }: { params: { group: number } }) {
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-    const coinDataPromises = symbolsGroupsListArray[params.group].map(
+    const coinDataPromises = symbolsGroupsListArray[params.group - 1].map(
       async (symbolList, index) => {
         return new Promise<void>(async (resolve, reject) => {
           try {
