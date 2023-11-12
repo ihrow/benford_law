@@ -1,15 +1,9 @@
 import { NextResponse } from "next/server";
-import {
-  symbolsGroupsList,
-  symbolsGroupsList2,
-  symbolsGroupsList3,
-  symbolsGroupsList4,
-} from "@/app/constants/symbols";
-import { SymbolsResponse, GetCoinsDataResponse } from "@/app/types";
+import { symbolsGroupsList } from "@/app/constants/symbols";
+import { SymbolsResponse } from "@/app/types";
 import axios from "axios";
+import prisma from "lib/prisma";
 import { getFirstDigit } from "@/app/helpers";
-
-export const revalidate = 0;
 
 async function fetchCoinData(
   symbolList: string[]
@@ -27,43 +21,30 @@ async function fetchCoinData(
 }
 
 async function updateDatabase(amountOfDigits: any) {
-  const URL = process.env.API_URL_DIGITS || "http://localhost:3000/api/digits";
-  for (const digit of amountOfDigits) {
-    setTimeout(async () => {
-      await axios.post(`${URL}/${digit.digit}`, {
-        amount: digit.amount,
-      });
-    }, 100);
-  }
+  await prisma.digits.create({
+    data: {
+      updateAt: new Date(),
+      one: amountOfDigits[0].amount,
+      two: amountOfDigits[1].amount,
+      three: amountOfDigits[2].amount,
+      four: amountOfDigits[3].amount,
+      five: amountOfDigits[4].amount,
+      six: amountOfDigits[5].amount,
+      seven: amountOfDigits[6].amount,
+      eight: amountOfDigits[7].amount,
+      nine: amountOfDigits[8].amount,
+    },
+  });
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { group: number } }
-) {
+export async function GET() {
   try {
     const amountOfDigits = Array.from({ length: 9 }, (_, i) => ({
       digit: i + 1,
       amount: 0,
     }));
 
-    if (params.group <= 0 || params.group > 4) {
-      return NextResponse.json(
-        { message: "Invalid group number. 1-4" },
-        { status: 400 }
-      );
-    }
-
-    const symbolsGroupsListArray = [
-      symbolsGroupsList,
-      symbolsGroupsList2,
-      symbolsGroupsList3,
-      symbolsGroupsList4,
-    ];
-
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-    const coinDataPromises = symbolsGroupsListArray[params.group - 1].map(
+    const coinDataPromises = symbolsGroupsList.map(
       async (symbolList, index) => {
         return new Promise<void>(async (resolve, reject) => {
           try {
@@ -86,8 +67,6 @@ export async function GET(
           } catch (error) {
             reject(error);
           }
-        }).then(async () => {
-          await delay(20 * index);
         });
       }
     );
@@ -96,15 +75,7 @@ export async function GET(
 
     await updateDatabase(amountOfDigits);
 
-    const response: GetCoinsDataResponse = {
-      digits: amountOfDigits.map((digit) => ({
-        digit: digit.digit,
-        amount: digit.amount,
-      })),
-      total: amountOfDigits.reduce((acc, digit) => acc + digit.amount, 0),
-    };
-
-    return NextResponse.json(response);
+    return NextResponse.json(amountOfDigits);
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }

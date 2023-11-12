@@ -3,8 +3,3 @@ export interface SymbolsResponse {
     USDT: number;
   };
 }
-
-export interface GetCoinsDataResponse {
-  digits: { digit: number; amount: number }[];
-  total: number;
-}

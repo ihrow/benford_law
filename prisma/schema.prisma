@@ -1,17 +1,29 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
 }
 
-model Digit {
-  digit  Int @id @unique
-  amount Int @default(0)
+model digits {
+  id       Int      @id @default(autoincrement())
+  updateAt DateTime @updatedAt
+  one      Int
+  two      Int
+  three    Int
+  four     Int
+  five     Int
+  six      Int
+  seven    Int
+  eight    Int
+  nine     Int
+}
+
+model crypto {
+  id       Int      @id @default(autoincrement())
+  updateAt DateTime @updatedAt
+  name     String
+  price    Float
 }
