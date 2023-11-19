@@ -21,9 +21,63 @@ model digits {
   nine     Int
 }
 
+model percentage {
+  id         Int      @id @default(autoincrement())
+  updateAt   DateTime @updatedAt
+  one        Float
+  deltaOne   Float
+  two        Float
+  deltaTwo   Float
+  three      Float
+  deltaThree Float
+  four       Float
+  deltaFour  Float
+  five       Float
+  deltaFive  Float
+  six        Float
+  deltaSix   Float
+  seven      Float
+  deltaSeven Float
+  eight      Float
+  deltaEight Float
+  nine       Float
+  deltaNine  Float
+}
+
 model crypto {
   id       Int      @id @default(autoincrement())
   updateAt DateTime @updatedAt
   name     String
   price    Float
+}
+
+model cryptoPrices {
+  id       Int      @id @default(autoincrement())
+  updateAt DateTime @updatedAt
+  data     String
+  BTC      Float
+  ETH      Float
+  XRP      Float
+  LTC      Float
+  SOL      Float
+  DOT      Float
+  DOGE     Float
+  AVAX     Float
+  TIA      Float
+  MATIC    Float
+  LINK     Float
+  BNB      Float
+  ADA      Float
+  YFI      Float
+  DYDX     Float
+  WLD      Float
+  ARB      Float
+  OKB      Float
+  TRX      Float
+  APT      Float
+  OP       Float
+  RUNE     Float
+  ATOM     Float
+  GALA     Float
+  MANTLE   Float
 }

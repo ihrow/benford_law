@@ -4,6 +4,8 @@ import { SymbolsResponse } from "@/app/types";
 import axios from "axios";
 import prisma from "lib/prisma";
 import { getFirstDigit } from "@/app/helpers";
+import { benfordDistribution } from "@/app/constants/benfordDistribution";
+import { floatToFixedPositive, floatToFixed } from "@/app/helpers/toFixed";
 
 async function fetchCoinData(
   symbolList: string[]
@@ -20,19 +22,63 @@ async function fetchCoinData(
   }
 }
 
-async function updateDatabase(amountOfDigits: any) {
+async function updateDigitsDatabase(data: any) {
   await prisma.digits.create({
     data: {
       updateAt: new Date(),
-      one: amountOfDigits[0].amount,
-      two: amountOfDigits[1].amount,
-      three: amountOfDigits[2].amount,
-      four: amountOfDigits[3].amount,
-      five: amountOfDigits[4].amount,
-      six: amountOfDigits[5].amount,
-      seven: amountOfDigits[6].amount,
-      eight: amountOfDigits[7].amount,
-      nine: amountOfDigits[8].amount,
+      one: data[0].amount,
+      two: data[1].amount,
+      three: data[2].amount,
+      four: data[3].amount,
+      five: data[4].amount,
+      six: data[5].amount,
+      seven: data[6].amount,
+      eight: data[7].amount,
+      nine: data[8].amount,
+    },
+  });
+}
+
+async function updatePercentagesDatabase(data: any) {
+  await prisma.percentage.create({
+    data: {
+      updateAt: new Date(),
+      one: data[0].percentage,
+      deltaOne: floatToFixedPositive(
+        benfordDistribution[0].percentage - data[0].percentage
+      ),
+      two: data[1].percentage,
+      deltaTwo: floatToFixedPositive(
+        benfordDistribution[1].percentage - data[1].percentage
+      ),
+      three: data[2].percentage,
+      deltaThree: floatToFixedPositive(
+        benfordDistribution[2].percentage - data[2].percentage
+      ),
+      four: data[3].percentage,
+      deltaFour: floatToFixedPositive(
+        benfordDistribution[3].percentage - data[3].percentage
+      ),
+      five: data[4].percentage,
+      deltaFive: floatToFixedPositive(
+        benfordDistribution[4].percentage - data[4].percentage
+      ),
+      six: data[5].percentage,
+      deltaSix: floatToFixedPositive(
+        benfordDistribution[5].percentage - data[5].percentage
+      ),
+      seven: data[6].percentage,
+      deltaSeven: floatToFixedPositive(
+        benfordDistribution[6].percentage - data[6].percentage
+      ),
+      eight: data[7].percentage,
+      deltaEight: floatToFixedPositive(
+        benfordDistribution[7].percentage - data[7].percentage
+      ),
+      nine: data[8].percentage,
+      deltaNine: floatToFixedPositive(
+        benfordDistribution[8].percentage - data[8].percentage
+      ),
     },
   });
 }
@@ -73,9 +119,25 @@ export async function GET() {
 
     await Promise.all(coinDataPromises);
 
-    await updateDatabase(amountOfDigits);
+    const total = amountOfDigits.reduce((acc: number, curr: any) => {
+      return acc + curr.amount;
+    }, 0);
 
-    return NextResponse.json(amountOfDigits);
+    const amountOfDigitsWithPercentage = amountOfDigits.map((digit: any) => {
+      return {
+        ...digit,
+        percentage: floatToFixed((digit.amount / total) * 100),
+        delta: floatToFixedPositive(
+          benfordDistribution[digit.digit - 1].percentage -
+            floatToFixed((digit.amount / total) * 100)
+        ),
+      };
+    });
+
+    await updateDigitsDatabase(amountOfDigitsWithPercentage);
+    await updatePercentagesDatabase(amountOfDigitsWithPercentage);
+
+    return NextResponse.json(amountOfDigitsWithPercentage);
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }
