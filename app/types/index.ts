@@ -1,5 +1,8 @@
+// api.coincap.io/v2/assets
 export interface SymbolsResponse {
-  [symbol: string]: {
-    USDT: number;
-  };
+  data: {
+    name: string;
+    symbol: string;
+    priceUsd: string;
+  }[];
 }

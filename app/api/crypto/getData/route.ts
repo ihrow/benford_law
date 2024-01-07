@@ -1,20 +1,17 @@
-import { NextResponse } from "next/server";
-import { symbolsGroupsList } from "@/app/constants/symbols";
-import { SymbolsResponse } from "@/app/types";
 import axios from "axios";
 import prisma from "lib/prisma";
-import { getFirstDigit } from "@/app/helpers";
+import { NextResponse } from "next/server";
+import { SymbolsResponse } from "@/app/types";
+import {
+  getFirstDigit,
+  floatToFixed,
+  floatToFixedPositive,
+} from "@/app/helpers";
 import { benfordDistribution } from "@/app/constants/benfordDistribution";
-import { floatToFixedPositive, floatToFixed } from "@/app/helpers/toFixed";
 
-async function fetchCoinData(
-  symbolList: string[]
-): Promise<SymbolsResponse | null> {
+async function fetchCoinData(): Promise<SymbolsResponse | null> {
   try {
-    const URL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${symbolList.join(
-      ","
-    )}&tsyms=USDT&api_key=${process.env.CRYPTOCOMPARE_API_KEY}`;
-
+    const URL = `https://api.coincap.io/v2/assets?limit=2000`;
     const response = await axios.get(URL);
     return response.data;
   } catch (error: any) {
@@ -25,7 +22,6 @@ async function fetchCoinData(
 async function updateDigitsDatabase(data: any) {
   await prisma.digits.create({
     data: {
-      updateAt: new Date(),
       one: data[0].amount,
       two: data[1].amount,
       three: data[2].amount,
@@ -42,7 +38,6 @@ async function updateDigitsDatabase(data: any) {
 async function updatePercentagesDatabase(data: any) {
   await prisma.percentage.create({
     data: {
-      updateAt: new Date(),
       one: data[0].percentage,
       deltaOne: floatToFixedPositive(
         benfordDistribution[0].percentage - data[0].percentage
@@ -90,34 +85,16 @@ export async function GET() {
       amount: 0,
     }));
 
-    const coinDataPromises = symbolsGroupsList.map(
-      async (symbolList, index) => {
-        return new Promise<void>(async (resolve, reject) => {
-          try {
-            const data = await fetchCoinData(symbolList);
-            if (data === null) {
-              reject(new Error("Cryptocompare error"));
-            } else {
-              for (const key of Object.keys(data)) {
-                if (data[key].USDT === undefined) {
-                  continue;
-                }
-                const digit = getFirstDigit(data[key].USDT.toString());
-                const digitIndex = amountOfDigits.findIndex(
-                  (digitObj) => digitObj.digit === digit
-                );
-                amountOfDigits[digitIndex].amount++;
-              }
-              resolve();
-            }
-          } catch (error) {
-            reject(error);
-          }
-        });
-      }
-    );
+    const coinData = await fetchCoinData();
+    if (!coinData) {
+      return NextResponse.json({ message: "Error fetching data" });
+    }
 
-    await Promise.all(coinDataPromises);
+    coinData.data.forEach((coin) => {
+      if (!coin.priceUsd) return;
+      const firstDigit = getFirstDigit(coin.priceUsd);
+      amountOfDigits[firstDigit - 1].amount++;
+    });
 
     const total = amountOfDigits.reduce((acc: number, curr: any) => {
       return acc + curr.amount;
