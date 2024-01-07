@@ -12,8 +12,9 @@ interface CryptoData {
 export async function GET() {
   try {
     let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
-    const URLData = "http://localhost:3000/api/crypto/getData";
-    const URLPrices = "http://localhost:3000/api/crypto/getTopCoinPrices";
+    const URLData = "https://benford-law.vercel.app/api/crypto/getData";
+    const URLPrices =
+      "https://benford-law.vercel.app/api/crypto/getTopCoinPrices";
     cron.schedule("*/5 * * * *", async () => {
       const data = await axios.get(`${URLData}`);
       await axios.get(`${URLPrices}`);
