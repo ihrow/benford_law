@@ -9,6 +9,13 @@ import {
 } from "@/app/helpers";
 import { benfordDistribution } from "@/app/constants/benfordDistribution";
 
+interface CryptoData {
+  digit: number;
+  amount: number;
+  percentage: number;
+  delta: number;
+}
+
 async function fetchCoinData(): Promise<SymbolsResponse | null> {
   try {
     const URL = `https://api.coincap.io/v2/assets?limit=2000`;
@@ -19,7 +26,7 @@ async function fetchCoinData(): Promise<SymbolsResponse | null> {
   }
 }
 
-async function updateDigitsDatabase(data: any) {
+async function updateDigitsDatabase(data: CryptoData[]) {
   await prisma.digits.create({
     data: {
       one: data[0].amount,
@@ -35,7 +42,7 @@ async function updateDigitsDatabase(data: any) {
   });
 }
 
-async function updatePercentagesDatabase(data: any) {
+async function updatePercentagesDatabase(data: CryptoData[]) {
   await prisma.percentage.create({
     data: {
       one: data[0].percentage,
