@@ -15,20 +15,18 @@ export async function GET() {
     const URLData = "https://benford-law.vercel.app/api/crypto/getData";
     const URLPrices =
       "https://benford-law.vercel.app/api/crypto/getTopCoinPrices";
-    cron.schedule("*/1 * * * *", async () => {
-      const data = await axios.get(`${URLData}`);
-      await axios.get(`${URLPrices}`);
+    const data = await axios.get(`${URLData}`);
+    await axios.get(`${URLPrices}`);
 
-      telegramURL = telegramURL.concat(
-        `&text=${data.data
-          .map(
-            (item: CryptoData) =>
-              `Digit ${item.digit}: ${item.amount} with <b>${item.percentage}%</b> distribution and <b>${item.delta}</b> delta.`
-          )
-          .join("%0A")}`
-      );
-      await axios.get(telegramURL);
-    });
+    telegramURL = telegramURL.concat(
+      `&text=${data.data
+        .map(
+          (item: CryptoData) =>
+            `Digit ${item.digit}: ${item.amount} with <b>${item.percentage}%</b> distribution and <b>${item.delta}</b> delta.`
+        )
+        .join("%0A")}`
+    );
+    await axios.get(telegramURL);
     return NextResponse.json({ message: "Cron job started" });
   } catch (error: any) {
     return NextResponse.json({ message: error });
