@@ -44,13 +44,6 @@ model percentage {
   deltaNine  Float
 }
 
-model crypto {
-  id       Int      @id @default(autoincrement())
-  updateAt DateTime @updatedAt
-  name     String
-  price    Float
-}
-
 model cryptoPrices {
   id       Int      @id @default(autoincrement())
   updateAt DateTime @updatedAt
