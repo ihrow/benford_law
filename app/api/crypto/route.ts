@@ -9,6 +9,8 @@ interface CryptoData {
   delta: number;
 }
 
+export const revalidate = 0;
+
 export async function GET() {
   try {
     let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
@@ -27,7 +29,7 @@ export async function GET() {
         .join("%0A")}`
     );
     await axios.get(telegramURL);
-    return NextResponse.json({ message: "Cron job started" });
+    return NextResponse.json({ message: "Data sent successfully" });
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }

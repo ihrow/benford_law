@@ -8,6 +8,7 @@ import {
   floatToFixedPositive,
 } from "@/app/helpers";
 import { benfordDistribution } from "@/app/constants/benfordDistribution";
+export const revalidate = 0;
 
 interface CryptoData {
   digit: number;

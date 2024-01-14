@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import prisma from "lib/prisma";
 import { topSymbols } from "@/app/constants/topSymbols";
+export const revalidate = 0;
 
 async function fetchMarketData() {
   try {
