@@ -42,6 +42,8 @@ model percentage {
   deltaEight Float
   nine       Float
   deltaNine  Float
+
+  correlationCoefficient Float?
 }
 
 model cryptoPrices {

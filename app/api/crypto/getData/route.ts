@@ -6,6 +6,7 @@ import {
   getFirstDigit,
   floatToFixed,
   floatToFixedPositive,
+  calculateCorrelationCoefficient,
 } from "@/app/helpers";
 import { benfordDistribution } from "@/app/constants/benfordDistribution";
 export const revalidate = 0;
@@ -44,7 +45,11 @@ async function updateDigitsDatabase(data: CryptoData[]) {
 }
 
 async function updatePercentagesDatabase(data: CryptoData[]) {
-  await prisma.percentage.create({
+  const observedFrequencies = data.map((item) => item.amount);
+  const expectedFrequencies = benfordDistribution.map(
+    (item) => item.percentage
+  );
+  return await prisma.percentage.create({
     data: {
       one: data[0].percentage,
       deltaOne: floatToFixedPositive(
@@ -81,6 +86,11 @@ async function updatePercentagesDatabase(data: CryptoData[]) {
       nine: data[8].percentage,
       deltaNine: floatToFixedPositive(
         benfordDistribution[8].percentage - data[8].percentage
+      ),
+
+      correlationCoefficient: calculateCorrelationCoefficient(
+        observedFrequencies,
+        expectedFrequencies
       ),
     },
   });
@@ -120,9 +130,10 @@ export async function GET() {
     });
 
     await updateDigitsDatabase(amountOfDigitsWithPercentage);
-    await updatePercentagesDatabase(amountOfDigitsWithPercentage);
 
-    return NextResponse.json(amountOfDigitsWithPercentage);
+    return NextResponse.json(
+      await updatePercentagesDatabase(amountOfDigitsWithPercentage)
+    );
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }
