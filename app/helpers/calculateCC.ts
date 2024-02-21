@@ -28,3 +28,25 @@ export function calculateCorrelationCoefficient(
 
   return correlationCoefficient;
 }
+
+export function MAD(
+  observedFrequencies: number[],
+  expectedFrequencies: number[]
+) {
+  let sum = 0;
+  for (let i = 0; i < observedFrequencies.length; i++) {
+    sum += Math.abs(expectedFrequencies[i] - observedFrequencies[i]);
+  }
+  return sum / observedFrequencies.length;
+}
+
+export function SSD(
+  observedFrequencies: number[],
+  expectedFrequencies: number[]
+) {
+  let sum = 0;
+  for (let i = 0; i < observedFrequencies.length; i++) {
+    sum += (expectedFrequencies[i] - observedFrequencies[i]) ** 2;
+  }
+  return sum;
+}

@@ -7,6 +7,8 @@ import {
   floatToFixed,
   floatToFixedPositive,
   calculateCorrelationCoefficient,
+  MAD,
+  SSD,
 } from "@/app/helpers";
 import { benfordDistribution } from "@/app/constants/benfordDistribution";
 export const revalidate = 0;
@@ -88,10 +90,8 @@ async function updatePercentagesDatabase(data: CryptoData[]) {
         benfordDistribution[8].percentage - data[8].percentage
       ),
 
-      correlationCoefficient: calculateCorrelationCoefficient(
-        observedFrequencies,
-        expectedFrequencies
-      ),
+      MAD: parseFloat(MAD(observedFrequencies, expectedFrequencies).toFixed(3)),
+      SSD: parseFloat(SSD(observedFrequencies, expectedFrequencies).toFixed(3)),
     },
   });
 }

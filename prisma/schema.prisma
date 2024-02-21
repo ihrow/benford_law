@@ -44,7 +44,8 @@ model percentage {
   nine       Float
   deltaNine  Float
 
-  correlationCoefficient Float?
+  MAD Float? // Minimum Absolute Deviation
+  SSD Float? // Sum of Squared Deviations
 }
 
 model cryptoPrices {
