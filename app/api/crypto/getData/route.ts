@@ -26,6 +26,9 @@ async function fetchCoinData(): Promise<SymbolsResponse | null> {
     const response = await axios.get(URL);
     return response.data;
   } catch (error: any) {
+    let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
+    telegramURL = telegramURL.concat(`&text=${JSON.stringify(error)}`);
+    await axios.get(telegramURL);
     return null;
   }
 }
