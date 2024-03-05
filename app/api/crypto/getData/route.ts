@@ -47,7 +47,7 @@ async function updateDigitsDatabase(data: CryptoData[]) {
 }
 
 async function updatePercentagesDatabase(data: CryptoData[]) {
-  const observedFrequencies = data.map((item) => item.amount);
+  const observedFrequencies = data.map((item) => item.percentage);
   const expectedFrequencies = benfordDistribution.map(
     (item) => item.percentage
   );
