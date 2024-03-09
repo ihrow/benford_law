@@ -1,12 +1,12 @@
 import axios from "axios";
 import prisma from "lib/prisma";
 import { NextResponse } from "next/server";
+import { topSymbols } from "@/app/constants/topSymbols";
 import { SymbolsResponse } from "@/app/types";
 import {
   getFirstDigit,
   floatToFixed,
   floatToFixedPositive,
-  calculateCorrelationCoefficient,
   MAD,
   SSD,
 } from "@/app/helpers";
@@ -18,6 +18,22 @@ interface CryptoData {
   amount: number;
   percentage: number;
   delta: number;
+}
+
+async function fetchMarketData() {
+  try {
+    const URL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${topSymbols.join(
+      ","
+    )}&tsyms=USDT&api_key=${process.env.CRYPTOCOMPARE_API_KEY}`;
+    const response = await axios.get(URL);
+
+    return response.data;
+  } catch (error: any) {
+    let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
+    telegramURL = telegramURL.concat(`&text=${JSON.stringify(error)}`);
+    await axios.get(telegramURL);
+    return null;
+  }
 }
 
 async function fetchCoinData(): Promise<SymbolsResponse | null> {
@@ -111,6 +127,11 @@ export async function GET() {
       return NextResponse.json({ message: "Error fetching data" });
     }
 
+    const pricesData = await fetchMarketData();
+    if (!pricesData) {
+      return NextResponse.json({ message: "Error fetching data" });
+    }
+
     coinData.data.forEach((coin) => {
       if (!coin.priceUsd) return;
       const firstDigit = getFirstDigit(coin.priceUsd);
@@ -133,6 +154,37 @@ export async function GET() {
     });
 
     await updateDigitsDatabase(amountOfDigitsWithPercentage);
+
+    await prisma.cryptoPrices.create({
+      data: {
+        data: JSON.stringify(pricesData),
+        BTC: pricesData.BTC.USDT,
+        ETH: pricesData.ETH.USDT,
+        BNB: pricesData.BNB.USDT,
+        ADA: pricesData.ADA.USDT,
+        DOGE: pricesData.DOGE.USDT,
+        XRP: pricesData.XRP.USDT,
+        DOT: pricesData.DOT.USDT,
+        LTC: pricesData.LTC.USDT,
+        LINK: pricesData.LINK.USDT,
+        APT: pricesData.APT.USDT,
+        ARB: pricesData.ARB.USDT,
+        ATOM: pricesData.ATOM.USDT,
+        AVAX: pricesData.AVAX.USDT,
+        DYDX: pricesData.DYDX.USDT,
+        GALA: pricesData.GALA.USDT,
+        MANTLE: pricesData.MANTLE.USDT,
+        MATIC: pricesData.MATIC.USDT,
+        OKB: pricesData.OKB.USDT,
+        OP: pricesData.OP.USDT,
+        RUNE: pricesData.RUNE.USDT,
+        SOL: pricesData.SOL.USDT,
+        TIA: pricesData.TIA.USDT,
+        TRX: pricesData.TRX.USDT,
+        WLD: pricesData.WLD.USDT,
+        YFI: pricesData.YFI.USDT,
+      },
+    });
 
     return NextResponse.json(
       await updatePercentagesDatabase(amountOfDigitsWithPercentage)
