@@ -32,7 +32,5 @@ export async function updateCorrelationCoefficients() {
         ),
       },
     });
-    // console.log("MAD: ", MAD(observedFrequencies, expectedFrequencies));
-    // console.log("SSD: ", SSD(observedFrequencies, expectedFrequencies));
   }
 }
