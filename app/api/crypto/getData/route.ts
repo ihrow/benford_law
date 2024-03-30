@@ -24,6 +24,10 @@ async function fetchMarketData() {
     const URL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC&tsyms=USDT&api_key=${process.env.CRYPTOCOMPARE_API_KEY}`;
     const response = await axios.get(URL);
 
+    if (!response.data.BTC) {
+      throw new Error("Error fetching market data");
+    }
+
     return response.data;
   } catch (error: any) {
     let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
@@ -37,6 +41,9 @@ async function fetchCoinData(): Promise<SymbolsResponse | null> {
   try {
     const URL = `https://api.coincap.io/v2/assets?limit=2000`;
     const response = await axios.get(URL);
+    if (!response.data.data) {
+      throw new Error("Error fetching coin data");
+    }
     return response.data;
   } catch (error: any) {
     let telegramURL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&parse_mode=HTML`;
