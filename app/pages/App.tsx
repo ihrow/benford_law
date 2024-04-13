@@ -8,6 +8,7 @@ import axios from "axios";
 import { BTCPriceDB, BenfordDistribution } from "../types";
 import { Chart } from "primereact/chart";
 import { Dropdown } from "primereact/dropdown";
+import { Card } from "primereact/card";
 
 export default function App() {
   const columns = [
@@ -215,25 +216,26 @@ export default function App() {
         data={chartData}
         options={chartOptions}
       />
-      <DataTable
-        value={data}
-        loading={loadingData}
-        paginator
-        rows={10}
-        header={header}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-      >
-        <Column
-          field="createdAt"
-          header="Created At"
-          body={imageBodyTemplate}
-        />
-        <Column field="MAD" header="MAD" />
-        <Column field="SSD" header="SSD" />
-        {visibleColumns.map((col) => (
-          <Column key={col.field} field={col.field} header={col.header} />
-        ))}
-      </DataTable>
+      <Card>
+        <DataTable
+          value={data}
+          loading={loadingData}
+          paginator
+          rows={10}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        >
+          <Column
+            field="createdAt"
+            header="Created At"
+            body={imageBodyTemplate}
+          />
+          <Column field="MAD" header="MAD" />
+          <Column field="SSD" header="SSD" />
+          {visibleColumns.map((col) => (
+            <Column key={col.field} field={col.field} header={col.header} />
+          ))}
+        </DataTable>
+      </Card>
     </div>
   );
 }
