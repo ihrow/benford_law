@@ -69,11 +69,13 @@ export default function App() {
       label: "MAD",
       data: responseData.data.map((d: BenfordDistribution) => d.MAD),
       yAxisID: "y1",
+      tension: 0.2,
     });
     dataSets.push({
       label: "SSD",
       data: responseData.data.map((d: BenfordDistribution) => d.SSD),
       yAxisID: "y2",
+      tension: 0.2,
     });
 
     const responseBTC = await axios.get(
@@ -83,6 +85,7 @@ export default function App() {
       label: "BTC Price",
       data: responseBTC.data.map((d: BTCPriceDB) => d.BTC),
       yAxisID: "y",
+      tension: 0.2,
     });
     const data = {
       labels: responseData.data.map((d: BenfordDistribution) =>
