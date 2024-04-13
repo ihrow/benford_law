@@ -65,8 +65,8 @@ export default function App() {
     const responseData = await axios.get(
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
-    if (responseData.data.message) {
-      console.log(responseData.data.message);
+    if (!responseData.data) {
+      console.log(responseData.data);
       setLoadingData(false);
       return;
     }
@@ -87,8 +87,8 @@ export default function App() {
     const responseBTC = await axios.get(
       `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
-    if (responseBTC.data.message) {
-      console.log(responseBTC.data.message);
+    if (!responseBTC.data) {
+      console.log(responseBTC.data);
       setLoadingData(false);
       return;
     }
