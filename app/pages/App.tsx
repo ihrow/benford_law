@@ -192,6 +192,7 @@ export default function App() {
   if (loadingData) {
     return (
       <div className="text-center">
+        <Toast ref={toast} />
         <h1>Loading...</h1>
       </div>
     );
