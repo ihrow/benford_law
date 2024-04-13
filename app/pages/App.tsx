@@ -3,23 +3,14 @@ import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { BTCPriceDB, BenfordDistribution } from "../types";
 import { Chart } from "primereact/chart";
 import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
-import { Toast } from "primereact/toast";
 
 export default function App() {
-  const toast = useRef<any>(null);
-  const showError = (message: string) => {
-    toast.current.show({
-      severity: "error",
-      summary: "Error",
-      detail: message,
-    });
-  };
   const columns = [
     { field: "one", header: "One" },
     { field: "two", header: "Two" },
@@ -75,7 +66,7 @@ export default function App() {
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
     if (responseData.data.message) {
-      showError(responseData.data.message);
+      console.log(responseData.data.message);
       setLoadingData(false);
       return;
     }
@@ -97,7 +88,7 @@ export default function App() {
       `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
     if (responseBTC.data.message) {
-      showError(responseBTC.data.message);
+      console.log(responseBTC.data.message);
       setLoadingData(false);
       return;
     }
@@ -192,14 +183,12 @@ export default function App() {
   if (loadingData) {
     return (
       <div className="text-center">
-        <Toast ref={toast} />
         <h1>Loading...</h1>
       </div>
     );
   }
   return (
     <div className="md:px-8 sm:px-4 px-0 py-4">
-      <Toast ref={toast} />
       <div className="text-center w-full gradient-text text-xl">
         <h1 className="my-1">Benford&apos;s law</h1>
       </div>
