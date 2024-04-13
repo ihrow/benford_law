@@ -15,7 +15,7 @@ export default function App() {
   const toast = useRef<any>(null);
   const showError = (message: string) => {
     toast.current.show({
-      severity: "danger",
+      severity: "error",
       summary: "Error",
       detail: message,
     });
@@ -32,7 +32,7 @@ export default function App() {
     { field: "nine", header: "Nine" },
   ];
   const [data, setData] = useState<BenfordDistribution[]>();
-  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [visibleColumns, setVisibleColumns] = useState(columns);
 
   const yesterday = new Date();
@@ -63,13 +63,13 @@ export default function App() {
   );
 
   async function getData() {
+    setLoadingData(true);
     if (dates.length !== 2 || dates[0] == null || dates[1] == null) {
       return;
     }
     if (dates[1].getTime() - dates[0].getTime() > 5 * 24 * 60 * 60 * 1000) {
       setStep(24);
     }
-    setLoadingData(true);
     const dataSets = [] as any[];
     const responseData = await axios.get(
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
@@ -189,7 +189,13 @@ export default function App() {
   ];
 
   const minDate = new Date("2024-01-14");
-
+  if (loadingData) {
+    return (
+      <div className="text-center">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
   return (
     <div className="md:px-8 sm:px-4 px-0 py-4">
       <Toast ref={toast} />
