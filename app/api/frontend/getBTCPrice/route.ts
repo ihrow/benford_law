@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const fromDate = new Date(Date.UTC(fromYear, fromMonth - 1, fromDay));
   const toDate = new Date(Date.UTC(toYear, toMonth - 1, toDay));
 
-  console.log(fromDate, toDate);
+  console.log(fromDate, toDate, step);
   if (fromDate > toDate) {
     return NextResponse.json({
       message: "From date should be less than to date",
@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
   fromDate.setMinutes(fromDate.getMinutes() + timeZoneOffset);
   toDate.setMinutes(toDate.getMinutes() + timeZoneOffset);
 
+  console.log(fromDate, toDate);
+
   try {
     let data = await prisma.cryptoPrices.findMany({
       where: {
@@ -41,13 +43,13 @@ export async function GET(req: NextRequest) {
         },
       },
     });
+    console.log(data, "DATA");
     data = data.filter((data, index) => index % parseInt(step) === 0);
-    return NextResponse.json(
-      data.toSorted(
-        (a, b) =>
-          new Date(a.updateAt).getTime() - new Date(b.updateAt).getTime()
-      )
+    data = data.sort(
+      (a, b) => new Date(a.updateAt).getTime() - new Date(b.updateAt).getTime()
     );
+    console.log(data, "DATA.sorted");
+    return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }
