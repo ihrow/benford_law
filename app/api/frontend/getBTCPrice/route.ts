@@ -4,7 +4,8 @@ import prisma from "lib/prisma";
 export async function GET(req: NextRequest) {
   const from = req.nextUrl.searchParams.get("from") as string;
   const to = req.nextUrl.searchParams.get("to") as string;
-  console.log(from, to);
+  const step = req.nextUrl.searchParams.get("step") as string;
+
   const [fromDay, fromMonth, fromYear] = from.split(".").map(Number);
   const [toDay, toMonth, toYear] = to.split(".").map(Number);
 
@@ -27,8 +28,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const timeZoneOffset = new Date().getTimezoneOffset();
+  fromDate.setMinutes(fromDate.getMinutes() + timeZoneOffset);
+  toDate.setMinutes(toDate.getMinutes() + timeZoneOffset);
+
   try {
-    const data = await prisma.cryptoPrices.findMany({
+    let data = await prisma.cryptoPrices.findMany({
       where: {
         updateAt: {
           gte: fromDate,
@@ -36,7 +41,13 @@ export async function GET(req: NextRequest) {
         },
       },
     });
-    return NextResponse.json(data);
+    data = data.filter((data, index) => index % parseInt(step) === 0);
+    return NextResponse.json(
+      data.toSorted(
+        (a, b) =>
+          new Date(a.updateAt).getTime() - new Date(b.updateAt).getTime()
+      )
+    );
   } catch (error: any) {
     return NextResponse.json({ message: error });
   }

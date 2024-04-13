@@ -1,27 +1,37 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "primereact/resources/themes/lara-dark-purple/theme.css";
+@import "../node_modules/primeflex/primeflex.css";
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
+.gradient-text {
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    74deg,
+    rgb(66, 133, 244) 0px,
+    rgb(155, 114, 203) 9%,
+    rgb(217, 101, 112) 20%,
+    rgb(217, 101, 112) 24%,
+    rgb(155, 114, 203) 35%,
+    rgb(66, 133, 244) 44%,
+    rgb(155, 114, 203) 50%,
+    rgb(217, 101, 112) 56%,
+    rgb(217, 101, 112) 60%,
+    rgb(155, 114, 203) 71%,
+    rgb(66, 133, 244) 80%,
+    rgb(155, 114, 203) 89%,
+    rgb(217, 101, 112) 100%
+  );
+  color: #fff; /* White text for better contrast */
+  padding: 5px; /* Add some padding for better readability */
+  background-clip: text;
+  animation: textShine 10s linear infinite;
+  background-size: 500% auto;
+
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes textShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
