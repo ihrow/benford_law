@@ -192,6 +192,7 @@ export default function App() {
 
   return (
     <div className="md:px-8 sm:px-4 px-0 py-4">
+      <Toast ref={toast} />
       <div className="text-center w-full gradient-text text-xl">
         <h1 className="my-1">Benford&apos;s law</h1>
       </div>
