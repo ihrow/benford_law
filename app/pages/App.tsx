@@ -3,14 +3,23 @@ import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { BTCPriceDB, BenfordDistribution } from "../types";
 import { Chart } from "primereact/chart";
 import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
+import { Toast } from "primereact/toast";
 
 export default function App() {
+  const toast = useRef<any>(null);
+  const showError = (message: string) => {
+    toast.current.show({
+      severity: "danger",
+      summary: "Error",
+      detail: message,
+    });
+  };
   const columns = [
     { field: "one", header: "One" },
     { field: "two", header: "Two" },
@@ -65,6 +74,11 @@ export default function App() {
     const responseData = await axios.get(
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
+    if (responseData.data.message) {
+      showError(responseData.data.message);
+      setLoadingData(false);
+      return;
+    }
     setData(responseData.data);
     dataSets.push({
       label: "MAD",
@@ -82,6 +96,11 @@ export default function App() {
     const responseBTC = await axios.get(
       `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
+    if (responseBTC.data.message) {
+      showError(responseBTC.data.message);
+      setLoadingData(false);
+      return;
+    }
     dataSets.push({
       label: "BTC Price",
       data: responseBTC.data.map((d: BTCPriceDB) => d.BTC),
