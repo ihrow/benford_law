@@ -3,14 +3,27 @@ import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { BTCPriceDB, BenfordDistribution } from "../types";
 import { Chart } from "primereact/chart";
 import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
+import { Toast } from "primereact/toast";
+
+import { Skeleton } from "primereact/skeleton";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 export default function App() {
+  const toast = useRef<Toast>(null);
+  const showError = (message: string) => {
+    toast.current?.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000,
+    });
+  };
   const columns = [
     { field: "one", header: "One" },
     { field: "two", header: "Two" },
@@ -42,16 +55,16 @@ export default function App() {
     setVisibleColumns(orderedSelectedColumns);
   };
 
-  const header = (
-    <MultiSelect
-      value={visibleColumns}
-      options={columns}
-      optionLabel="header"
-      onChange={onColumnToggle}
-      className="w-full sm:w-20rem"
-      display="chip"
-    />
-  );
+  // const header = (
+  //   <MultiSelect
+  //     value={visibleColumns}
+  //     options={columns}
+  //     optionLabel="header"
+  //     onChange={onColumnToggle}
+  //     className="w-full sm:w-20rem"
+  //     display="chip"
+  //   />
+  // );
 
   async function getData() {
     setLoadingData(true);
@@ -65,10 +78,9 @@ export default function App() {
     const responseData = await axios.get(
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
-    console.log("RESPONSE DATA", responseData.data);
     if (responseData.data.message) {
-      console.log(responseData.data);
       setLoadingData(false);
+      showError(responseData.data.message);
       return;
     }
     setData(responseData.data);
@@ -88,10 +100,9 @@ export default function App() {
     const responseBTC = await axios.get(
       `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
     );
-    console.log("RESPONSE BTC", responseBTC.data);
     if (responseBTC.data.message) {
-      console.log(responseBTC.data);
       setLoadingData(false);
+      showError(responseBTC.data.message);
       return;
     }
     dataSets.push({
@@ -182,78 +193,81 @@ export default function App() {
   ];
 
   const minDate = new Date("2024-01-14");
-  if (loadingData) {
-    return (
-      <div className="text-center">
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
   return (
-    <div className="md:px-8 sm:px-4 px-0 py-4">
-      <div className="text-center w-full gradient-text text-xl">
-        <h1 className="my-1">Benford&apos;s law</h1>
-      </div>
-      <div className="flex flex-row gap-2 py-2">
-        <div className="flex flex-column gap-1">
-          <label htmlFor="to">Date range</label>
-          <Calendar
-            id="to"
-            selectionMode="range"
-            hideOnRangeSelection
-            showButtonBar
-            value={dates}
-            maxDate={new Date()}
-            minDate={minDate}
-            readOnlyInput
-            onChange={(e) => {
-              setDates(e.value as Date[]);
-            }}
-            onClearButtonClick={() => {
-              setDates([yesterday, new Date()]);
-            }}
-          />
+    <>
+      <Toast />
+      <LoadingOverlay isLoading={loadingData} />
+      <div className="md:px-8 sm:px-4 px-0 py-4">
+        <div className="text-center w-full gradient-text text-xl">
+          <h1 className="my-1">Benford&apos;s law</h1>
         </div>
-        <div className="flex flex-column gap-1">
-          <label htmlFor="step">Step</label>
-          <Dropdown
-            id="step"
-            value={step}
-            options={selectBoxItems}
-            onChange={(e) => {
-              setStep(e.value);
-            }}
-            optionLabel="label"
-            placeholder="Select a step"
-          />
+        <div className="flex flex-row gap-2 py-2">
+          <div className="flex flex-column gap-1">
+            <label htmlFor="to">Date range</label>
+            <Calendar
+              id="to"
+              disabled={loadingData}
+              selectionMode="range"
+              hideOnRangeSelection
+              showButtonBar
+              value={dates}
+              maxDate={new Date()}
+              minDate={minDate}
+              readOnlyInput
+              onChange={(e) => {
+                setDates(e.value as Date[]);
+              }}
+              onClearButtonClick={() => {
+                setDates([yesterday, new Date()]);
+              }}
+            />
+          </div>
+          <div className="flex flex-column gap-1">
+            <label htmlFor="step">Step</label>
+            <Dropdown
+              loading={loadingData}
+              id="step"
+              value={step}
+              options={selectBoxItems}
+              onChange={(e) => {
+                setStep(e.value);
+              }}
+              optionLabel="label"
+              placeholder="Select a step"
+            />
+          </div>
         </div>
-      </div>
-      <Chart
-        type="line"
-        className="py-4"
-        data={chartData}
-        options={chartOptions}
-      />
-      <Card>
-        <DataTable
-          value={data}
-          loading={loadingData}
-          paginator
-          rows={10}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-        >
-          <Column
-            field="createdAt"
-            header="Created At"
-            body={imageBodyTemplate}
+        {loadingData ? (
+          <Skeleton width="100%" height="32rem" className="my-4" />
+        ) : (
+          <Chart
+            type="line"
+            className="py-4"
+            data={chartData}
+            options={chartOptions}
           />
-          <Column field="MAD" header="MAD" />
-          <Column field="SSD" header="SSD" />
-          {visibleColumns.map((col) => (
-            <Column key={col.field} field={col.field} header={col.header} />
-          ))}
-        </DataTable>
-      </Card>
-    </div>
+        )}
+        <Card>
+          <DataTable
+            value={data}
+            loading={loadingData}
+            paginator
+            rows={10}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          >
+            <Column
+              field="createdAt"
+              header="Created At"
+              body={imageBodyTemplate}
+            />
+            <Column field="MAD" header="MAD" />
+            <Column field="SSD" header="SSD" />
+            {visibleColumns.map((col) => (
+              <Column key={col.field} field={col.field} header={col.header} />
+            ))}
+          </DataTable>
+        </Card>
+      </div>
+    </>
   );
 }
