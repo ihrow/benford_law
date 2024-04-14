@@ -1,5 +1,4 @@
 "use client";
-import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -43,28 +42,6 @@ export default function App() {
   yesterday.setDate(yesterday.getDate() - 1);
 
   const [dates, setDates] = useState<Date[]>([yesterday, new Date()]);
-
-  const onColumnToggle = (event: MultiSelectChangeEvent) => {
-    let selectedColumns = event.value;
-    let orderedSelectedColumns = columns.filter((col) =>
-      selectedColumns.some(
-        (sCol: { field: string }) => sCol.field === col.field
-      )
-    );
-
-    setVisibleColumns(orderedSelectedColumns);
-  };
-
-  // const header = (
-  //   <MultiSelect
-  //     value={visibleColumns}
-  //     options={columns}
-  //     optionLabel="header"
-  //     onChange={onColumnToggle}
-  //     className="w-full sm:w-20rem"
-  //     display="chip"
-  //   />
-  // );
 
   async function getData() {
     setLoadingData(true);
@@ -201,7 +178,7 @@ export default function App() {
         <div className="text-center w-full gradient-text text-xl">
           <h1 className="my-1">Benford&apos;s law</h1>
         </div>
-        <div className="flex flex-row gap-2 py-2">
+        <div className="flex flex-column sm:flex-row gap-2 py-2">
           <div className="flex flex-column gap-1">
             <label htmlFor="to">Date range</label>
             <Calendar
