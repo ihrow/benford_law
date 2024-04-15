@@ -46,7 +46,6 @@ export default function App() {
   const [dates, setDates] = useState<Date[]>([yesterday, new Date()]);
 
   async function getData() {
-    setLoadingData(true);
     if (dates.length !== 2 || dates[0] == null || dates[1] == null) {
       return;
     }
@@ -54,6 +53,7 @@ export default function App() {
       setStep(24);
     }
     const dataSets = [] as any[];
+    setLoadingData(true);
     const responseData = await axios.get(
       `/api/frontend/getBenford?from=${dates[0].toLocaleDateString(
         "de"
