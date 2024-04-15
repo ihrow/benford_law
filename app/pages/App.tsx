@@ -16,6 +16,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 export default function App() {
   const toast = useRef<Toast>(null);
   const showError = (message: string) => {
+    console.log("showError", message);
+    console.log("toast", toast.current);
     toast.current?.show({
       severity: "error",
       summary: "Error",
@@ -53,9 +55,13 @@ export default function App() {
     }
     const dataSets = [] as any[];
     const responseData = await axios.get(
-      `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
+      `/api/frontend/getBenford?from=${dates[0].toLocaleDateString(
+        "de"
+      )}&to=${dates[1].toLocaleDateString("de")}&step=${step}`
     );
+    console.log("responseData", responseData.data);
     if (responseData.data.message) {
+      console.log("responseDataError");
       setLoadingData(false);
       showError(responseData.data.message);
       return;
@@ -75,9 +81,13 @@ export default function App() {
     });
 
     const responseBTC = await axios.get(
-      `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
+      `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString(
+        "de"
+      )}&to=${dates[1].toLocaleDateString("de")}&step=${step}`
     );
+    console.log("responseBTC", responseBTC.data);
     if (responseBTC.data.message) {
+      console.log("responseBTCError");
       setLoadingData(false);
       showError(responseBTC.data.message);
       return;
@@ -94,6 +104,7 @@ export default function App() {
       ),
       datasets: dataSets,
     };
+    console.log("chartData", data);
     setChartData(data);
     setChartOptions({
       stacked: false,
