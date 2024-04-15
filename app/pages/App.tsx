@@ -45,11 +45,14 @@ export default function App() {
 
   const [dates, setDates] = useState<Date[]>([yesterday, new Date()]);
 
-  async function getData() {
+  async function getData(isStepChange: boolean) {
     if (dates.length !== 2 || dates[0] == null || dates[1] == null) {
       return;
     }
-    if (dates[1].getTime() - dates[0].getTime() > 5 * 24 * 60 * 60 * 1000) {
+    if (
+      dates[1].getTime() - dates[0].getTime() > 5 * 24 * 60 * 60 * 1000 &&
+      !isStepChange
+    ) {
       setStep(24);
     }
     const dataSets = [] as any[];
@@ -153,9 +156,14 @@ export default function App() {
   const [chartOptions, setChartOptions] = useState<any>({});
 
   const [step, setStep] = useState(6);
+
   useEffect(() => {
-    getData();
-  }, [dates, step]);
+    getData(false);
+  }, [dates]);
+
+  useEffect(() => {
+    getData(true);
+  }, [step]);
 
   const selectBoxItems = [
     {
