@@ -3,6 +3,7 @@ import { Calendar } from "primereact/calendar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import axios from "axios";
 import { BTCPriceDB, BenfordDistribution } from "../types";
 import { Chart } from "primereact/chart";
@@ -12,6 +13,7 @@ import { Toast } from "primereact/toast";
 
 import { Skeleton } from "primereact/skeleton";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { Message } from "primereact/message";
 
 export default function App() {
   const toast = useRef<Toast>(null);
@@ -44,7 +46,6 @@ export default function App() {
   const [dates, setDates] = useState<Date[]>([yesterday, new Date()]);
 
   async function getData() {
-    setLoadingData(true);
     if (dates.length !== 2 || dates[0] == null || dates[1] == null) {
       return;
     }
@@ -114,6 +115,11 @@ export default function App() {
             mode: "x",
           },
         },
+        legend: {
+          labels: {
+            color: "white",
+          },
+        },
       },
       y: {
         type: "linear",
@@ -129,6 +135,48 @@ export default function App() {
         type: "linear",
         display: true,
         position: "right",
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#fefbf1",
+          },
+          title: {
+            display: true,
+            text: "Datetime",
+            color: "#fefbf1",
+          },
+        },
+        y: {
+          ticks: {
+            color: "#fefbf1",
+          },
+          title: {
+            display: true,
+            text: "BTC Price",
+            color: "#fefbf1",
+          },
+        },
+        y1: {
+          ticks: {
+            color: "#fefbf1",
+          },
+          title: {
+            display: true,
+            text: "MAD",
+            color: "#fefbf1",
+          },
+        },
+        y2: {
+          ticks: {
+            color: "#fefbf1",
+          },
+          title: {
+            display: true,
+            text: "SSD",
+            color: "#fefbf1",
+          },
+        },
       },
     });
     setLoadingData(false);
@@ -170,15 +218,197 @@ export default function App() {
   ];
 
   const minDate = new Date("2024-01-14");
+
+  const content = (
+    <div className="flex align-items-center ">
+      <div className="w-25rem flex justify-content-center">
+        <img
+          alt="logo"
+          src="https://upload.wikimedia.org/wikipedia/commons/6/66/Frank_Benford_%281883_-_1948%29.jpg"
+          width="128"
+        />
+      </div>
+      <div className="ml-3 py-4">
+        {" "}
+        <span className="text-xl">
+          <b className="text-2xl">Benford&apos;s Law</b>, also known as the “law of
+          first digits” or the “phenomenon of significant digits,” is the
+          finding that the first digits (or numerals to be exact) of the numbers
+          found in series of records of the most varied sources do not display a
+          uniform distribution, but rather, they&apos;re arranged in such a way that
+          the digit one is the most frequent, followed by two, three, and so in
+          a successively decreasing manner down to nine.
+        </span>
+      </div>
+    </div>
+  );
+  const contentMAD = (
+    <div className="flex align-items-center">
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow is="true">
+          <mi is="true">M</mi>
+          <mi is="true">A</mi>
+          <mi is="true">D</mi>
+          <mo linebreak="goodbreak" is="true">
+            =
+          </mo>
+          <mfrac is="true">
+            <mrow is="true">
+              <mn is="true">1</mn>
+            </mrow>
+            <mrow is="true">
+              <mn is="true">9</mn>
+            </mrow>
+          </mfrac>
+          <munderover is="true">
+            <mrow is="true">
+              <mo linebreak="badbreak" is="true">
+                &#x2211;
+              </mo>
+            </mrow>
+            <mrow is="true">
+              <mi is="true">d</mi>
+              <mo linebreak="badbreak" is="true">
+                =
+              </mo>
+              <mn is="true">1</mn>
+            </mrow>
+            <mrow is="true">
+              <mn is="true">9</mn>
+            </mrow>
+          </munderover>
+          <mrow is="true">
+            <mo is="true">|</mo>
+            <msub is="true">
+              <mrow is="true">
+                <mi is="true">p</mi>
+              </mrow>
+              <mrow is="true">
+                <mi is="true">d</mi>
+              </mrow>
+            </msub>
+            <mo is="true">&#x2212;</mo>
+            <msub is="true">
+              <mrow is="true">
+                <mover accent="true" is="true">
+                  <mrow is="true">
+                    <mi is="true">p</mi>
+                  </mrow>
+                  <mrow is="true">
+                    <mo is="true">&#x303;</mo>
+                  </mrow>
+                </mover>
+              </mrow>
+              <mrow is="true">
+                <mi is="true">d</mi>
+              </mrow>
+            </msub>
+            <mo is="true">|</mo>
+          </mrow>
+        </mrow>
+      </math>
+      <div className="ml-3 py-2">
+        {" "}
+        <span className="text-xl">
+          The mean absolute deviation <b>(MAD)</b> of a dataset is the average
+          distance between each data point and the mean. It gives us an idea
+          about the variability in a dataset.
+        </span>
+      </div>
+    </div>
+  );
+  const contentSSD = (
+    <div className="flex align-items-center">
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow is="true">
+          <mi is="true">S</mi>
+          <mi is="true">S</mi>
+          <mi is="true">D</mi>
+          <mo linebreak="goodbreak" is="true">
+            =
+          </mo>
+          <munderover is="true">
+            <mrow is="true">
+              <mo linebreak="badbreak" is="true">
+                &#x2211;
+              </mo>
+            </mrow>
+            <mrow is="true">
+              <mi is="true">d</mi>
+              <mo linebreak="badbreak" is="true">
+                =
+              </mo>
+              <mn is="true">1</mn>
+            </mrow>
+            <mrow is="true">
+              <mn is="true">9</mn>
+            </mrow>
+          </munderover>
+          <msup is="true">
+            <mrow is="true">
+              <mrow is="true">
+                <mo is="true">(</mo>
+                <msub is="true">
+                  <mrow is="true">
+                    <mi is="true">p</mi>
+                  </mrow>
+                  <mrow is="true">
+                    <mi is="true">d</mi>
+                  </mrow>
+                </msub>
+                <mo linebreak="badbreak" is="true">
+                  &#x2212;
+                </mo>
+                <msub is="true">
+                  <mrow is="true">
+                    <mover accent="true" is="true">
+                      <mrow is="true">
+                        <mi is="true">p</mi>
+                      </mrow>
+                      <mrow is="true">
+                        <mo is="true">&#x303;</mo>
+                      </mrow>
+                    </mover>
+                  </mrow>
+                  <mrow is="true">
+                    <mi is="true">d</mi>
+                  </mrow>
+                </msub>
+                <mo is="true">)</mo>
+              </mrow>
+            </mrow>
+            <mrow is="true">
+              <mn is="true">2</mn>
+            </mrow>
+          </msup>
+        </mrow>
+      </math>
+      <div className="ml-3 py-2">
+        {" "}
+        <span className="text-xl">
+          The sum of squares measures the deviation of data points away from the
+          mean value.
+        </span>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Toast />
-      <LoadingOverlay isLoading={loadingData} />
       <div className="md:px-8 sm:px-4 px-0 py-4">
-        <div className="text-center w-full gradient-text text-xl">
+        <div className="w-full text-center">
+          <Image
+            src="/STU-FEI.png"
+            width={581 / 2}
+            height={128 / 2}
+            alt="STU-FEI"
+          />
+        </div>
+        <div className="text-center w-full text-xl py-2">
           <h1 className="my-1">Benford&apos;s law</h1>
         </div>
-        <div className="flex flex-column sm:flex-row gap-2 py-2">
+        <div className="flex flex-column sm:flex-row gap-2 py-2 ">
           <div className="flex flex-column gap-1">
             <label htmlFor="to">Date range</label>
             <Calendar
@@ -220,10 +450,41 @@ export default function App() {
           <Chart
             type="line"
             className="py-4"
+            height="75vh"
             data={chartData}
             options={chartOptions}
           />
         )}
+        <Message
+          style={{
+            border: "solid #696cff",
+            borderWidth: "0 0 0 6px",
+            color: "white",
+          }}
+          className="border-primary w-full justify-content-start mt-4 "
+          severity="info"
+          content={content}
+        />
+        <Message
+          style={{
+            border: "solid #696cff",
+            borderWidth: "0 0 0 6px",
+            color: "white",
+          }}
+          className="border-primary w-full justify-content-start my-2 "
+          severity="info"
+          content={contentMAD}
+        />
+        <Message
+          style={{
+            border: "solid #696cff",
+            borderWidth: "0 0 0 6px",
+            color: "white",
+          }}
+          className="border-primary w-full justify-content-start  mb-4 "
+          severity="info"
+          content={contentSSD}
+        />
         <Card>
           <DataTable
             value={data}
