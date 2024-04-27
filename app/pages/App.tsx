@@ -18,6 +18,8 @@ import { Message } from "primereact/message";
 export default function App() {
   const toast = useRef<Toast>(null);
   const showError = (message: string) => {
+    console.log("showError", message);
+    console.log("toast", toast.current);
     toast.current?.show({
       severity: "error",
       summary: "Error",
@@ -41,7 +43,7 @@ export default function App() {
   const [visibleColumns, setVisibleColumns] = useState(columns);
 
   const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setDate(yesterday.getDate() - 3);
 
   const [dates, setDates] = useState<Date[]>([yesterday, new Date()]);
 
@@ -49,14 +51,16 @@ export default function App() {
     if (dates.length !== 2 || dates[0] == null || dates[1] == null) {
       return;
     }
-    if (dates[1].getTime() - dates[0].getTime() > 5 * 24 * 60 * 60 * 1000) {
-      setStep(24);
-    }
     const dataSets = [] as any[];
+    setLoadingData(true);
     const responseData = await axios.get(
-      `/api/frontend/getBenford?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
+      `/api/frontend/getBenford?from=${dates[0].toLocaleDateString(
+        "de"
+      )}&to=${dates[1].toLocaleDateString("de")}&step=${step}`
     );
+    console.log("responseData", responseData.data);
     if (responseData.data.message) {
+      console.log("responseDataError");
       setLoadingData(false);
       showError(responseData.data.message);
       return;
@@ -76,9 +80,13 @@ export default function App() {
     });
 
     const responseBTC = await axios.get(
-      `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString()}&to=${dates[1].toLocaleDateString()}&step=${step}`
+      `/api/frontend/getBTCPrice?from=${dates[0].toLocaleDateString(
+        "de"
+      )}&to=${dates[1].toLocaleDateString("de")}&step=${step}`
     );
+    console.log("responseBTC", responseBTC.data);
     if (responseBTC.data.message) {
+      console.log("responseBTCError");
       setLoadingData(false);
       showError(responseBTC.data.message);
       return;
@@ -95,6 +103,7 @@ export default function App() {
       ),
       datasets: dataSets,
     };
+    console.log("chartData", data);
     setChartData(data);
     setChartOptions({
       stacked: false,
@@ -189,7 +198,8 @@ export default function App() {
   const [chartData, setChartData] = useState<any>({});
   const [chartOptions, setChartOptions] = useState<any>({});
 
-  const [step, setStep] = useState(6);
+  const [step, setStep] = useState(24);
+
   useEffect(() => {
     getData();
   }, [dates, step]);
